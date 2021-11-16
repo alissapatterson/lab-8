@@ -1,0 +1,22 @@
+---
+title: "lab 8"
+author: "Alissa Patterson"
+date: "11/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(modelsummary)
+library(corrplot)
+library(broom)
+library(here)
+```
+
+# read in 
+
+```{r}
+homes <- read_csv(here("slo_homes (1).csv"))
+```
+
