@@ -19,4 +19,96 @@ library(here)
 ```{r}
 homes <- read_csv(here("slo_homes (1).csv"))
 ```
+### create a subset with 4 cities
+
+Task: create a subset (called homes_subset) that only contains observations wehre the city is:
+
+"San Luis Obsipo"
+"Atascadero"
+"Arroyo Grande"
+"Santa Maria-Orcutt"
+
+```{r}
+homes_subset <- homes %>% 
+  filter(City %in% c("San Luis Obispo", "Atascadero", "Arroyo Grande", "Santa Maria-Orcutt"))
+```
+
+### Create a summary table that has the mean and standrd deviation of home prices grouped by city and sale status 
+
+```{r}
+homes_subset %>%
+  group_by(City, Status) %>% 
+  summarize(mean_price = mean(Price),
+            sd_price = sd(Price),
+            mean_sqft = mean(SqFt))
+  
+```
+Explore the relationship between square footage and home price in scatterplot 
+
+```{r}
+ggplot(data = homes_subset, aes(x = SqFt, y = Price)) +
+geom_point() +
+  geom_smooth(method = 'lm')
+```
+### Try a few linear models
+
+Use multiple linear regression to investigate relationships between several predictor variables and home Price
+
+create 2 different permutations of this model:
+
+1. Price ~ City, Bedrooms, Bathrooms, SqFt, and Status (lm1)
+2. Price ~ City, SqFt, Status (lm2)
+3. Try another one (lm3)
+
+```{r}
+lm1 <- lm(Price ~ City + Bedrooms + Bathrooms + SqFt + Status, data = homes_subset)
+
+lm2 <- lm(Price ~ SqFt, data = homes_subset)
+
+lm3 <- lm(Price ~ SqFt, data = homes_subset)
+
+# If I wanted SLO to be the reference level:
+# Use fct_relevel to specify a new reference level 
+
+new_homes_subset <- homes_subset %>% 
+  mutate(City = fct_relevel(City, "San Luis Obispo"))
+
+lm_slo <- lm(Price ~ City + SqFt, data = new_homes_subset)
+
+summary(lm_slo)
+
+```
+Make a subset called homes_quant that only contains variables from Price through SqFt
+
+```{r}
+homes_quant <- homes_subset %>% 
+  select(Price:SqFt)
+
+homes_cor <- cor(homes_quant)
+```
+
+
+
+```{r}
+AIC(lm1)
+AIC(lm2)
+```
+
+### Use modelsummary() 
+
+```{r}
+modelsummary(list(lm1, lm2, lm3))
+```
+```{r}
+plot(lm1)
+```
+```{r}
+home_predictions <- augment(lm1)
+```
+# Make a histogram of the residuals form this model (lm1)
+
+```{r}
+ggplot(data = home_predictions, aes(x = .resid))
+geom_histogram()
+```
 
